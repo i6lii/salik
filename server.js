@@ -7,8 +7,9 @@ import initSqlJs from 'sql.js'
 
 const rootDir = path.dirname(fileURLToPath(import.meta.url))
 const dataDir = path.join(rootDir, 'data')
+const distDir = path.join(rootDir, 'dist')
 const databasePath = path.join(dataDir, 'salik.sqlite')
-const port = Number(process.env.API_PORT ?? 3001)
+const port = Number(process.env.PORT ?? process.env.API_PORT ?? 3001)
 const sessions = new Map()
 
 const hashPassword = (password) => {
@@ -163,6 +164,35 @@ const getSession = (request) => {
   return token ? sessions.get(token) : null
 }
 
+const serveStaticFile = (response, filePath) => {
+  try {
+    const content = fs.readFileSync(filePath)
+    const ext = path.extname(filePath).toLowerCase()
+    const mimeTypes = {
+      '.html': 'text/html; charset=utf-8',
+      '.js': 'application/javascript; charset=utf-8',
+      '.css': 'text/css; charset=utf-8',
+      '.json': 'application/json; charset=utf-8',
+      '.svg': 'image/svg+xml',
+      '.png': 'image/png',
+      '.jpg': 'image/jpeg',
+      '.jpeg': 'image/jpeg',
+      '.ico': 'image/x-icon',
+      '.woff': 'font/woff',
+      '.woff2': 'font/woff2',
+      '.txt': 'text/plain; charset=utf-8',
+    }
+    response.writeHead(200, {
+      'Content-Type': mimeTypes[ext] ?? 'application/octet-stream',
+      'Cache-Control': 'no-cache',
+    })
+    response.end(content)
+  } catch {
+    response.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' })
+    response.end('Not found')
+  }
+}
+
 const saveBusLocation = (database, location) => {
   const statement = database.prepare(`
     INSERT INTO bus_locations (bus_id, latitude, longitude, accuracy, speed, heading, timestamp)
@@ -296,6 +326,20 @@ const main = async () => {
     if (request.method === 'POST' && request.url === '/api/auth/forgot-password') {
       json(response, 200, { success: true, message: 'تم تسجيل طلب الاستعادة التجريبي. راجع مسؤول النظام لإعادة تعيين كلمة المرور.' })
       return
+    }
+
+    if (request.method === 'GET' && !request.url.startsWith('/api/')) {
+      const safePath = request.url === '/' ? '/index.html' : request.url.split('?')[0]
+      const filePath = path.normalize(path.join(distDir, safePath))
+      if (filePath.startsWith(distDir) && fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+        serveStaticFile(response, filePath)
+        return
+      }
+
+      if (fs.existsSync(path.join(distDir, 'index.html'))) {
+        serveStaticFile(response, path.join(distDir, 'index.html'))
+        return
+      }
     }
 
     json(response, 404, { message: 'المسار غير موجود.' })

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 240" role="img" aria-labelledby="title desc">
+  <title id="title">سالِك | SALIK</title>
+  <desc id="desc">شعار سالك باللغتين العربية والإنجليزية</desc>
+  <rect width="760" height="240" rx="24" fill="#f4f8ff"/>
+  <text x="64" y="137" fill="#1768c5" font-family="Arial, sans-serif" font-size="76" font-weight="700" letter-spacing="5">SALIK</text>
+  <path d="M362 43v122" stroke="#73b9f3" stroke-width="4"/>
+  <text x="408" y="143" fill="#0b3474" font-family="Arial, sans-serif" font-size="77" font-weight="700">سالِك</text>
+  <path d="M64 190h280M370 190h145M536 190h74" stroke="#1450a3" stroke-width="8" stroke-linecap="round"/>
+  <path d="M370 190h145" stroke="#258fe4" stroke-width="8" stroke-linecap="round"/>
+  <path d="M536 190h74" stroke="#82c5f3" stroke-width="8" stroke-linecap="round"/>
+</svg>
